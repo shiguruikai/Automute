@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/manual_mute_category_title">
+        <SwitchPreferenceCompat
+            app:defaultValue="@bool/manualMute_def"
+            app:iconSpaceReserved="false"
+            app:key="@string/manualMute"
+            app:summary="@string/manual_mute_summary"
+            app:title="@string/manual_mute_title" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:iconSpaceReserved="false"
+        app:title="@string/auto_mute_category_title">
+        <SwitchPreferenceCompat
+            app:defaultValue="@bool/startAutoMuteService_def"
+            app:iconSpaceReserved="false"
+            app:key="@string/startAutoMuteService"
+            app:summary="@string/start_auto_mute_service_summary"
+            app:title="@string/start_auto_mute_service" />
+        <CheckBoxPreference
+            app:defaultValue="@bool/startAfterReboot_def"
+            app:iconSpaceReserved="false"
+            app:key="@string/startAfterReboot"
+            app:summary="@string/start_after_reboot_summary"
+            app:title="@string/start_after_reboot" />
+        <CheckBoxPreference
+            app:defaultValue="@bool/startAfterUpdate_def"
+            app:iconSpaceReserved="false"
+            app:key="@string/startAfterUpdate"
+            app:summary="@string/start_after_update_summary"
+            app:title="@string/start_after_update" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

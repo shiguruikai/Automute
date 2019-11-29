@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/shape_toast_mute_sate"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <ImageView
+        android:id="@+id/toast_mute_state_imageView"
+        android:layout_width="64dp"
+        android:layout_height="48dp"
+        android:layout_gravity="center"
+        android:tint="@color/colorAccent"
+        tools:ignore="ContentDescription"
+        tools:src="@android:drawable/ic_lock_silent_mode_off" />
+
+    <TextView
+        android:id="@+id/toast_mute_state_textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:textAlignment="center"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        tools:text="@string/un_mute" />
+
+</LinearLayout>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="toast_gravity_entries">
+        <item>上</item>
+        <item>中央</item>
+        <item>下</item>
+    </string-array>
+</resources>

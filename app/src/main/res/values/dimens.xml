@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="large_button_padding">16dp</dimen>
+    <dimen name="toolbar_elevation">4dp</dimen>
+    <dimen name="fast_scroll_touch_range_width">32dp</dimen>
+    <dimen name="fast_scroll_width">8dp</dimen>
+    <dimen name="fast_scroll_offset_width">24dp</dimen>
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- preferences_mute.xml -->
+    <string name="manualMute" translatable="false">manualMute</string>
+    <string name="startAutoMuteService" translatable="false">startAutoMuteService</string>
+    <string name="startAfterReboot" translatable="false">startAfterReboot</string>
+    <string name="startAfterUpdate" translatable="false">startAfterUpdate</string>
+    <bool name="manualMute_def" translatable="false">false</bool>
+    <bool name="startAutoMuteService_def" translatable="false">false</bool>
+    <bool name="startAfterReboot_def" translatable="false">true</bool>
+    <bool name="startAfterUpdate_def" translatable="false">true</bool>
+
+    <!-- preferences_notification.xml -->
+    <string name="openNotificationSettings" translatable="false">openNotificationSettings</string>
+    <string name="toastMuteChange" translatable="false">toastMuteChange</string>
+    <string name="shortDurationToast" translatable="false">shortDurationToast</string>
+    <string name="toastGravity" translatable="false">toastGravity</string>
+    <bool name="toastMuteChange_def" translatable="false">true</bool>
+    <bool name="shortDurationToast_def" translatable="false">false</bool>
+    <string-array name="toast_gravity_values">
+        <item>48</item><!-- Gravity.TOP -->
+        <item>17</item><!-- Gravity.CENTER -->
+        <item>80</item><!-- Gravity.BOTTOM -->
+    </string-array>
+</resources>
