@@ -167,8 +167,6 @@ class SelectAppFragment : Fragment() {
                 sv.queryTextAsFlow()
                     .drop(1)
                     .collectLatest { newText ->
-                        Log.d(TAG, "queryTextAsFlow: $newText")
-
                         if (newText.isEmpty()) {
                             appInfoListAdapter.submitList(appInfoList)
                         } else {
