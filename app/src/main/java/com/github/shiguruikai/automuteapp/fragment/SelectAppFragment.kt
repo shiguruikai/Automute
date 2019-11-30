@@ -86,13 +86,13 @@ class SelectAppFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewLifecycleOwner.lifecycleScope.launch {
-            // RecycleView にアダプターをセット
+            // RecycleView にリストアダプターをセット
             app_info_recyclerView.adapter = appInfoListAdapter
 
-            // アダプターの submitList() を実行する処理
+            // リストアダプターの submitList() を実行する処理
             // 1. リストが未取得の場合、取得した後に実行
             // 2. リストが取得済みで、検索クエリがない場合、即時実行
-            // 3. リストが取得済みで、検索クエリがある場合、検索した後に実行
+            // 3. リストが取得済みで、検索クエリがある場合、検索して実行
             if (appInfoList.isEmpty()) {
                 launch {
                     showLoadingProgress()
@@ -198,17 +198,12 @@ class SelectAppFragment : Fragment() {
     }
 
     /**
-     * インストールされた起動可能なアプリの情報を取得する。
-     * インストール済みアプリの数にもよるが、取得に数秒かかる。
+     * インストール済みのアプリの中から、有効かつアクティビティとラベルが存在するアプリの情報を取得する。
+     * インストール済みのアプリの数にもよるが、取得に数秒かかる。
      */
     private suspend fun getInstalledAppInfoList(): ArrayList<AppInfo> = withContext(Dispatchers.Default) {
         val pm = requireContext().packageManager
         val selectedPackageNames = defaultSharedPreferences.selectedPackageNames
-
-        // 起動できないアプリを除外
-//        val canLaunch: suspend (ApplicationInfo) -> Boolean = {
-//            pm.getLaunchIntentForPackage(it.packageName) != null
-//        }
 
         // ソートの優先順は、
         // チェック済み > ラベルの昇順 > パッケージ名の昇順
