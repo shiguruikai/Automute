@@ -4,7 +4,6 @@ import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -69,16 +68,6 @@ class SelectAppFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_select_app, container, false)
-    }
-
-    private fun showLoadingProgress() {
-        progressBar.visibility = View.VISIBLE
-        progress_textView.visibility = View.VISIBLE
-    }
-
-    private fun hideLoadingProgress() {
-        progressBar.visibility = View.GONE
-        progress_textView.visibility = View.GONE
     }
 
     @ExperimentalCoroutinesApi
@@ -189,6 +178,16 @@ class SelectAppFragment : Fragment() {
                 .map { it.packageName }
                 .toSet()
         }
+    }
+
+    private fun showLoadingProgress() {
+        progressBar.visibility = View.VISIBLE
+        progress_textView.visibility = View.VISIBLE
+    }
+
+    private fun hideLoadingProgress() {
+        progressBar.visibility = View.GONE
+        progress_textView.visibility = View.GONE
     }
 
     private suspend fun searchAppInfoList(query: String): List<AppInfo> = withContext(Dispatchers.Default) {
