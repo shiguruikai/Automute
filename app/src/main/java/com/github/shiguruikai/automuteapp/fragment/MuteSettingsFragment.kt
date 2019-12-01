@@ -1,6 +1,8 @@
 package com.github.shiguruikai.automuteapp.fragment
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.os.Bundle
 import android.provider.Settings
@@ -18,6 +20,7 @@ import com.github.shiguruikai.automuteapp.util.isUsageStatsAllowed
 import com.github.shiguruikai.automuteapp.util.newIntent
 import com.github.shiguruikai.automuteapp.util.setMasterMute
 import com.github.shiguruikai.automuteapp.util.setOnPreferenceChangeListener
+import com.github.shiguruikai.automuteapp.util.singleToast
 import com.github.shiguruikai.automuteapp.util.toastMuteState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -41,6 +44,14 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
 
     private val startAfterUpdate by lazy {
         findPreference<CheckBoxPreference>(getString(R.string.startAfterUpdate))!!
+    }
+
+    /**
+     * 着信時にミュートを解除するためには、電話の権限が必要。
+     * 電話の権限がない場合、チェックが付かないようにする。
+     */
+    private val unmuteOnIncomingCall by lazy {
+        findPreference<CheckBoxPreference>(getString(R.string.unmuteOnIncomingCall))!!
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -78,6 +89,19 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
 
             true
         }
+
+        unmuteOnIncomingCall.setOnPreferenceChangeListener { newValue ->
+            if (newValue && !isPermissionGranted(Manifest.permission.READ_PHONE_STATE)) {
+                // 電話の権限がない場合、権限をリクエスト
+                requestPermissions(
+                    arrayOf(Manifest.permission.READ_PHONE_STATE),
+                    REQUEST_CODE_UNMUTE_ON_INCOMING_CALL
+                )
+                false
+            } else {
+                true
+            }
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -88,9 +112,17 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
 
     private fun updatePreferencesState() {
         manualMute.isChecked = audioManager.isMasterMute()
-        startAutoMuteService.isChecked = AutoMasterMuteService.isRunning
-        startAfterReboot.isEnabled = startAutoMuteService.isChecked
-        startAfterUpdate.isEnabled = startAutoMuteService.isChecked
+
+        AutoMasterMuteService.isRunning.also {
+            startAutoMuteService.isChecked = it
+            startAfterReboot.isEnabled = it
+            startAfterUpdate.isEnabled = it
+        }
+
+        // 電話の権限がない場合、チェックを外す
+        if (unmuteOnIncomingCall.isChecked && !isPermissionGranted(Manifest.permission.READ_PHONE_STATE)) {
+            unmuteOnIncomingCall.isChecked = false
+        }
     }
 
     private fun startAutoMuteService() {
@@ -105,10 +137,27 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
         }
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        // 電話の権限が付与された場合、チェックを付ける
+        if (requestCode == REQUEST_CODE_UNMUTE_ON_INCOMING_CALL) {
+            if (isPermissionGranted(Manifest.permission.READ_PHONE_STATE)) {
+                unmuteOnIncomingCall.isChecked = true
+            } else {
+                requireActivity().singleToast("Permissions not granted.")
+            }
+        }
+    }
+
+    private fun isPermissionGranted(permission: String): Boolean {
+        return ContextCompat.checkSelfPermission(requireActivity(), permission) == PackageManager.PERMISSION_GRANTED
+    }
+
     companion object {
         private val TAG = MuteSettingsFragment::class.java.simpleName
 
         private const val ACTION_USAGE_ACCESS_SETTINGS_REQUEST_CODE = 1
+
+        private const val REQUEST_CODE_UNMUTE_ON_INCOMING_CALL = 11
 
         private const val CHECK_STATE_INTERVAL = 200L
     }

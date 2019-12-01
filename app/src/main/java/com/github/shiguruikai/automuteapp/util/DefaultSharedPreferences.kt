@@ -27,4 +27,6 @@ class DefaultSharedPreferences(
     val shortDurationToast by prefBoolean(res, R.bool.shortDurationToast_def, R.string.shortDurationToast)
 
     val toastGravity by prefString(Gravity.CENTER.toString(), res.getString(R.string.toastGravity))
+
+    val unmuteOnIncomingCall by prefBoolean(res, R.bool.unmuteOnIncomingCall_def, R.string.unmuteOnIncomingCall)
 }

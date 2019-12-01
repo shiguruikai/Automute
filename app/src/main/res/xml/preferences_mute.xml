@@ -33,6 +33,12 @@
             app:key="@string/startAfterUpdate"
             app:summary="@string/start_after_update_summary"
             app:title="@string/start_after_update" />
+        <CheckBoxPreference
+            app:defaultValue="@bool/unmuteOnIncomingCall_def"
+            app:iconSpaceReserved="false"
+            app:key="@string/unmuteOnIncomingCall"
+            app:summary="@string/unmute_on_incoming_call_summary"
+            app:title="@string/unmute_on_incoming_call" />
     </PreferenceCategory>
 
 </PreferenceScreen>

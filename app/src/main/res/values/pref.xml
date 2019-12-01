@@ -5,10 +5,12 @@
     <string name="startAutoMuteService" translatable="false">startAutoMuteService</string>
     <string name="startAfterReboot" translatable="false">startAfterReboot</string>
     <string name="startAfterUpdate" translatable="false">startAfterUpdate</string>
+    <string name="unmuteOnIncomingCall" translatable="false">unmuteOnIncomingCall</string>
     <bool name="manualMute_def" translatable="false">false</bool>
     <bool name="startAutoMuteService_def" translatable="false">false</bool>
     <bool name="startAfterReboot_def" translatable="false">true</bool>
     <bool name="startAfterUpdate_def" translatable="false">true</bool>
+    <bool name="unmuteOnIncomingCall_def" translatable="false">false</bool>
 
     <!-- preferences_notification.xml -->
     <string name="openNotificationSettings" translatable="false">openNotificationSettings</string>
