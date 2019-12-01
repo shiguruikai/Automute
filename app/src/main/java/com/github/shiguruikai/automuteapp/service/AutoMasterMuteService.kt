@@ -149,7 +149,7 @@ class AutoMasterMuteService :
         private val TAG = AutoMasterMuteService::class.java.simpleName
 
         /** アプリの起動をモニタリングする間隔(ミリ秒) */
-        private const val USAGE_MONITORING_INTERVAL = 800L
+        private const val USAGE_MONITORING_INTERVAL = 600L
 
         /** [UsageStatsManager.queryEvents] で照会する時間(ミリ秒)の範囲 */
         private const val QUERY_EVENTS_TIME_RANGE = USAGE_MONITORING_INTERVAL + 1000L
