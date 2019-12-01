@@ -24,6 +24,6 @@
         android:textAlignment="center"
         android:textSize="14sp"
         android:textStyle="bold"
-        tools:text="@string/un_mute" />
+        tools:text="@string/unmute" />
 
 </LinearLayout>

@@ -19,7 +19,6 @@
             app:defaultValue="@bool/shortDurationToast_def"
             app:iconSpaceReserved="false"
             app:key="@string/shortDurationToast"
-            app:summary="@string/short_duration_toast_summary"
             app:title="@string/short_duration_toast_title" />
         <ListPreference
             app:defaultValue="17"
