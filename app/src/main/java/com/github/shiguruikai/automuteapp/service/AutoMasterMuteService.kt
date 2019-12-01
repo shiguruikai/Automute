@@ -133,7 +133,7 @@ class AutoMasterMuteService :
                     if (isMuted xor shouldMute) {
                         audioManager.setMasterMute(shouldMute)
 
-                        if (defaultSharedPreferences.isToastMuteChange) {
+                        if (defaultSharedPreferences.toastMuteChange) {
                             toastMuteState(audioManager)
                         }
                     }

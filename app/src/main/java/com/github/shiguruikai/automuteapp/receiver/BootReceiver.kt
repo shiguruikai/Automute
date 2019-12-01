@@ -14,10 +14,10 @@ class BootReceiver : BroadcastReceiver() {
 
         when (intent.action) {
             Intent.ACTION_BOOT_COMPLETED      -> when {
-                pref.isStartAutoMuteService && pref.isStartAfterReboot -> startAutoMuteService(context)
+                pref.startAutoMuteService && pref.startAfterReboot -> startAutoMuteService(context)
             }
             Intent.ACTION_MY_PACKAGE_REPLACED -> when {
-                pref.isStartAutoMuteService && pref.isStartAfterUpdate -> startAutoMuteService(context)
+                pref.startAutoMuteService && pref.startAfterUpdate -> startAutoMuteService(context)
             }
         }
     }

@@ -35,14 +35,14 @@ fun Context.singleToast(text: CharSequence) {
 
 fun Context.toastMuteState(audioManager: AudioManager) {
     val gravity = defaultSharedPreferences.toastGravity.toInt()
-    val duration = if (defaultSharedPreferences.isShortDurationToast) SHORT_DURATION else NORMAL_DURATION
+    val duration = if (defaultSharedPreferences.shortDurationToast) SHORT_DURATION else NORMAL_DURATION
     val toastView = View.inflate(applicationContext, R.layout.toast_mute_state, null)
 
     if (audioManager.isMasterMute()) {
         toastView.toast_mute_state_textView.setText(R.string.mute)
         toastView.toast_mute_state_imageView.setImageResource(R.drawable.ic_volume_off_black_24dp)
     } else {
-        toastView.toast_mute_state_textView.setText(R.string.un_mute)
+        toastView.toast_mute_state_textView.setText(R.string.unmute)
         toastView.toast_mute_state_imageView.setImageResource(R.drawable.ic_volume_up_black_24dp)
     }
 

@@ -14,17 +14,17 @@ class DefaultSharedPreferences(
 
     var selectedPackageNames by prefStringSet(emptySet())
 
-    val isManualMute by prefBoolean(res, R.bool.manualMute_def, R.string.manualMute)
+    val manualMute by prefBoolean(res, R.bool.manualMute_def, R.string.manualMute)
 
-    val isStartAutoMuteService by prefBoolean(res, R.bool.startAutoMuteService_def, R.string.startAutoMuteService)
+    val startAutoMuteService by prefBoolean(res, R.bool.startAutoMuteService_def, R.string.startAutoMuteService)
 
-    val isStartAfterReboot by prefBoolean(res, R.bool.startAfterReboot_def, R.string.startAfterReboot)
+    val startAfterReboot by prefBoolean(res, R.bool.startAfterReboot_def, R.string.startAfterReboot)
 
-    val isStartAfterUpdate by prefBoolean(res, R.bool.startAfterUpdate_def, R.string.startAfterUpdate)
+    val startAfterUpdate by prefBoolean(res, R.bool.startAfterUpdate_def, R.string.startAfterUpdate)
 
-    val isToastMuteChange by prefBoolean(res, R.bool.toastMuteChange_def, R.string.toastMuteChange)
+    val toastMuteChange by prefBoolean(res, R.bool.toastMuteChange_def, R.string.toastMuteChange)
 
-    val isShortDurationToast by prefBoolean(res, R.bool.shortDurationToast_def, R.string.shortDurationToast)
+    val shortDurationToast by prefBoolean(res, R.bool.shortDurationToast_def, R.string.shortDurationToast)
 
     val toastGravity by prefString(Gravity.CENTER.toString(), res.getString(R.string.toastGravity))
 }

@@ -56,7 +56,7 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
         // 手動ミュートを実行
         manualMute.setOnPreferenceChangeListener { newValue ->
             audioManager.setMasterMute(newValue)
-            if (defaultSharedPreferences.isToastMuteChange) {
+            if (defaultSharedPreferences.toastMuteChange) {
                 requireActivity().toastMuteState(audioManager)
             }
             true

@@ -31,8 +31,8 @@ fun SharedPreferences.prefInt(defaultValue: Int, key: String? = null): Preferenc
         { k, v -> putInt(k, v) })
 
 fun SharedPreferences.prefInt(
-    resources: Resources, @IntegerRes defaultValue: Int, @StringRes key: Int
-): PreferencesDelegate<Int> = prefInt(resources.getInteger(defaultValue), resources.getString(key))
+    resources: Resources, @IntegerRes defaultValue: Int, @StringRes key: Int? = null
+): PreferencesDelegate<Int> = prefInt(resources.getInteger(defaultValue), key?.let { resources.getString(key) })
 
 fun SharedPreferences.prefBoolean(defaultValue: Boolean, key: String? = null): PreferencesDelegate<Boolean> =
     PreferencesDelegate(
@@ -41,8 +41,8 @@ fun SharedPreferences.prefBoolean(defaultValue: Boolean, key: String? = null): P
         { k, v -> putBoolean(k, v) })
 
 fun SharedPreferences.prefBoolean(
-    resources: Resources, @BoolRes defaultValue: Int, @StringRes key: Int
-): PreferencesDelegate<Boolean> = prefBoolean(resources.getBoolean(defaultValue), resources.getString(key))
+    resources: Resources, @BoolRes defaultValue: Int, @StringRes key: Int? = null
+): PreferencesDelegate<Boolean> = prefBoolean(resources.getBoolean(defaultValue), key?.let { resources.getString(it) })
 
 fun SharedPreferences.prefString(defaultValue: String, key: String? = null): PreferencesDelegate<String> =
     PreferencesDelegate(
@@ -51,8 +51,8 @@ fun SharedPreferences.prefString(defaultValue: String, key: String? = null): Pre
         { k, v -> putString(k, v) })
 
 fun SharedPreferences.prefString(
-    resources: Resources, @StringRes defaultValue: Int, @StringRes key: Int
-): PreferencesDelegate<String> = prefString(resources.getString(defaultValue), resources.getString(key))
+    resources: Resources, @StringRes defaultValue: Int, @StringRes key: Int? = null
+): PreferencesDelegate<String> = prefString(resources.getString(defaultValue), key?.let { resources.getString(key) })
 
 fun SharedPreferences.prefStringSet(defaultValue: Set<String>, key: String? = null): PreferencesDelegate<Set<String>> =
     PreferencesDelegate(
