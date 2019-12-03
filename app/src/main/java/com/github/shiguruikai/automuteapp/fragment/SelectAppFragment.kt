@@ -44,7 +44,9 @@ abstract class SelectAppFragment : Fragment() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putParcelableArrayList(::appInfoList.name, appInfoList)
+
+        getDataFragment().appInfoList = appInfoList
+
         outState.putString(::searchViewQuery.name, searchView?.query?.toString())
         adapterLayoutManager?.let {
             outState.putParcelable(::adapterLayoutState.name, it.onSaveInstanceState())
@@ -55,8 +57,9 @@ abstract class SelectAppFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
+        appInfoList = getDataFragment().appInfoList
+
         if (savedInstanceState != null) {
-            appInfoList = savedInstanceState.getParcelableArrayList(::appInfoList.name) ?: ArrayList(0)
             searchViewQuery = savedInstanceState.getString(::searchViewQuery.name)
             adapterLayoutState = savedInstanceState.getParcelable(::adapterLayoutState.name)
         }
@@ -195,6 +198,28 @@ abstract class SelectAppFragment : Fragment() {
     abstract fun saveSelectedAppNames(selectedAppNames: Set<String>)
 
     abstract suspend fun getInstalledAppInfoList(): ArrayList<AppInfo>
+
+    class DataFragment : Fragment() {
+
+        var appInfoList: ArrayList<AppInfo> = ArrayList(0)
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            retainInstance = true
+        }
+    }
+
+    private fun getDataFragment(): DataFragment {
+        val fm = childFragmentManager
+
+        return fm.findFragmentByTag("data") as DataFragment? ?: run {
+            DataFragment().also {
+                fm.beginTransaction()
+                    .add(it, "data")
+                    .commit()
+            }
+        }
+    }
 
     companion object {
         private val TAG = SelectAppFragment::class.java.simpleName
