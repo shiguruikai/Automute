@@ -3,10 +3,12 @@ package com.github.shiguruikai.automuteapp.util
 import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.view.View
 import android.view.ViewTreeObserver
 import androidx.appcompat.widget.SearchView
+import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.preference.CheckBoxPreference
 import androidx.preference.SwitchPreferenceCompat
@@ -20,6 +22,10 @@ import kotlinx.coroutines.flow.conflate
 infix fun CharSequence.iin(other: CharSequence): Boolean = other.contains(this, ignoreCase = true)
 
 inline fun <reified T> Context.newIntent(): Intent = Intent(this, T::class.java)
+
+fun Context.allPermissionsGranted(vararg permissions: String): Boolean {
+    return permissions.all { ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED }
+}
 
 fun Context.isUsageStatsAllowed(): Boolean {
     val appOpsManager = getSystemService<AppOpsManager>()!!

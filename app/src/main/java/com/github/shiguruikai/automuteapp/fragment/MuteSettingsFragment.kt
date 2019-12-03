@@ -2,7 +2,6 @@ package com.github.shiguruikai.automuteapp.fragment
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.os.Bundle
 import android.provider.Settings
@@ -15,6 +14,7 @@ import androidx.preference.SwitchPreferenceCompat
 import com.github.shiguruikai.automuteapp.R
 import com.github.shiguruikai.automuteapp.defaultSharedPreferences
 import com.github.shiguruikai.automuteapp.service.AutoMasterMuteService
+import com.github.shiguruikai.automuteapp.util.allPermissionsGranted
 import com.github.shiguruikai.automuteapp.util.isMasterMute
 import com.github.shiguruikai.automuteapp.util.isUsageStatsAllowed
 import com.github.shiguruikai.automuteapp.util.newIntent
@@ -91,7 +91,7 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
         }
 
         unmuteOnIncomingCall.setOnPreferenceChangeListener { newValue ->
-            if (newValue && !isPermissionGranted(Manifest.permission.READ_PHONE_STATE)) {
+            if (newValue && !isPhonePermissionGranted()) {
                 // 電話の権限がない場合、権限をリクエスト
                 requestPermissions(
                     arrayOf(Manifest.permission.READ_PHONE_STATE),
@@ -120,9 +120,13 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
         }
 
         // 電話の権限がない場合、チェックを外す
-        if (unmuteOnIncomingCall.isChecked && !isPermissionGranted(Manifest.permission.READ_PHONE_STATE)) {
+        if (unmuteOnIncomingCall.isChecked && !isPhonePermissionGranted()) {
             unmuteOnIncomingCall.isChecked = false
         }
+    }
+
+    private fun isPhonePermissionGranted(): Boolean {
+        return requireActivity().allPermissionsGranted(Manifest.permission.READ_PHONE_STATE)
     }
 
     private fun startAutoMuteService() {
@@ -140,16 +144,12 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         // 電話の権限が付与された場合、チェックを付ける
         if (requestCode == REQUEST_CODE_UNMUTE_ON_INCOMING_CALL) {
-            if (isPermissionGranted(Manifest.permission.READ_PHONE_STATE)) {
+            if (isPhonePermissionGranted()) {
                 unmuteOnIncomingCall.isChecked = true
             } else {
                 requireActivity().singleToast("Permissions not granted.")
             }
         }
-    }
-
-    private fun isPermissionGranted(permission: String): Boolean {
-        return ContextCompat.checkSelfPermission(requireActivity(), permission) == PackageManager.PERMISSION_GRANTED
     }
 
     companion object {
