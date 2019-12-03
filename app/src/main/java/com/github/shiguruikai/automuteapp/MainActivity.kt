@@ -51,7 +51,8 @@ class MainActivity : AppCompatActivity() {
         private val TOP_LEVEL_DESTINATION_IDS = setOf(
             R.id.nav_mute_settings,
             R.id.nav_notification_settings,
-            R.id.nav_select_app
+            R.id.nav_select_app,
+            R.id.nav_select_activity
         )
     }
 }

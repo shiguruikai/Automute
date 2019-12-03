@@ -29,4 +29,5 @@
     <string name="toast_gravity_title">通知の表示位置</string>
     <string name="unmute_on_incoming_call">着信時にミュートを解除</string>
     <string name="unmute_on_incoming_call_summary">電話の着信時にミュートを解除します。</string>
+    <string name="select_activity">アクティビティ選択</string>
 </resources>

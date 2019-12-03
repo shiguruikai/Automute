@@ -1,6 +1,5 @@
 package com.github.shiguruikai.automuteapp.fragment
 
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.DisplayMetrics
@@ -19,15 +18,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.shiguruikai.automuteapp.R
 import com.github.shiguruikai.automuteapp.adapter.AppInfoListAdapter
 import com.github.shiguruikai.automuteapp.data.AppInfo
-import com.github.shiguruikai.automuteapp.defaultSharedPreferences
 import com.github.shiguruikai.automuteapp.util.afterMeasured
 import com.github.shiguruikai.automuteapp.util.iin
 import com.github.shiguruikai.automuteapp.util.queryTextAsFlow
 import kotlinx.android.synthetic.main.fragment_select_app.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
@@ -36,7 +32,7 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class SelectAppFragment : Fragment() {
+abstract class SelectAppFragment : Fragment() {
 
     private var appInfoList: ArrayList<AppInfo> = ArrayList(0)
     private var adapterLayoutState: Parcelable? = null
@@ -173,10 +169,8 @@ class SelectAppFragment : Fragment() {
         // アプリリストが取得できていない場合を除く
         if (appInfoList.isNotEmpty()) {
             // チェックが付いたアプリのパッケージ名を保存する
-            defaultSharedPreferences.selectedPackageNames = appInfoList.asSequence()
-                .filter { it.isChecked }
-                .map { it.packageName }
-                .toSet()
+            val selectedAppNames = appInfoList.asSequence().filter { it.isChecked }.map { it.name }.toSet()
+            saveSelectedAppNames(selectedAppNames)
         }
     }
 
@@ -191,55 +185,16 @@ class SelectAppFragment : Fragment() {
     }
 
     private suspend fun searchAppInfoList(query: String): List<AppInfo> = withContext(Dispatchers.Default) {
+        val words = query.split(' ', '　')
+
         appInfoList.asFlow()
-            .filter { query iin it.label || query iin it.packageName }
+            .filter { words.all { w -> w iin it.label || w iin it.name } }
             .toList()
     }
 
-    /**
-     * インストール済みのアプリの中から、有効かつアクティビティとラベルが存在するアプリの情報を取得する。
-     * インストール済みのアプリの数にもよるが、取得に数秒かかる。
-     */
-    private suspend fun getInstalledAppInfoList(): ArrayList<AppInfo> = withContext(Dispatchers.Default) {
-        val pm = requireContext().packageManager
-        val selectedPackageNames = defaultSharedPreferences.selectedPackageNames
+    abstract fun saveSelectedAppNames(selectedAppNames: Set<String>)
 
-        // ソートの優先順は、
-        // チェック済み > ラベルの昇順 > パッケージ名の昇順
-        val comparator = compareByDescending(AppInfo::isChecked)
-            .thenComparator { a, b -> a.label.compareTo(b.label, true) }
-            .thenComparator { a, b -> a.packageName.compareTo(b.packageName, true) }
-
-        val flag = PackageManager.GET_ACTIVITIES
-
-        pm.getInstalledPackages(flag)
-            .map {
-                async {
-                    if (it.activities != null
-                        && it.applicationInfo != null
-                        && it.applicationInfo.enabled
-                        && it.applicationInfo.labelRes != 0
-                    ) {
-                        AppInfo(
-                            uid = it.applicationInfo.uid,
-                            // ラベルがない場合、パッケージ名と同じインスタンス
-                            label = it.applicationInfo.loadLabel(pm).toString(),
-                            packageName = it.applicationInfo.packageName
-                        ).apply {
-                            // ユーザーが選択済みのアプリかどうか
-                            isChecked = it.applicationInfo.packageName in selectedPackageNames
-                        }
-                    } else {
-                        null
-                    }
-                }
-            }
-            .awaitAll()
-            .filterNotNullTo(ArrayList())
-            .apply {
-                sortWith(comparator)
-            }
-    }
+    abstract suspend fun getInstalledAppInfoList(): ArrayList<AppInfo>
 
     companion object {
         private val TAG = SelectAppFragment::class.java.simpleName

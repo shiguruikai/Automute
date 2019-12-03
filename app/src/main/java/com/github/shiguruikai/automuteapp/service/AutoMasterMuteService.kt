@@ -32,6 +32,7 @@ class AutoMasterMuteService :
     private val audioManager by lazy { getSystemService<AudioManager>()!! }
 
     private var selectedPackageNames = emptySet<String>()
+    private var selectedActivityNames = emptySet<String>()
 
     private var autoMuteJob: Job? = null
 
@@ -52,6 +53,7 @@ class AutoMasterMuteService :
         defaultSharedPreferences.registerOnSharedPreferenceChangeListener(this)
 
         selectedPackageNames = defaultSharedPreferences.selectedPackageNames
+        selectedActivityNames = defaultSharedPreferences.selectedActivityNames
 
         startNotification()
 
@@ -80,8 +82,13 @@ class AutoMasterMuteService :
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
-        if (key == defaultSharedPreferences::selectedPackageNames.name) {
-            selectedPackageNames = defaultSharedPreferences.selectedPackageNames
+        when (key) {
+            defaultSharedPreferences::selectedPackageNames.name  -> {
+                selectedPackageNames = defaultSharedPreferences.selectedPackageNames
+            }
+            defaultSharedPreferences::selectedActivityNames.name -> {
+                selectedActivityNames = defaultSharedPreferences.selectedActivityNames
+            }
         }
     }
 
@@ -128,7 +135,8 @@ class AutoMasterMuteService :
 
                 if (lastForegroundEvent != null) {
                     val isMuted = audioManager.isMasterMute()
-                    val shouldMute = lastForegroundEvent.packageName in selectedPackageNames
+                    val shouldMute = (lastForegroundEvent.packageName in selectedPackageNames
+                            || lastForegroundEvent.className in selectedActivityNames)
 
                     if (isMuted xor shouldMute) {
                         audioManager.setMasterMute(shouldMute)

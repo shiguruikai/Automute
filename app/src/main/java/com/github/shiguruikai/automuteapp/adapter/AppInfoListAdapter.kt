@@ -69,7 +69,7 @@ class AppInfoListAdapter(
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val icon: ImageView = itemView.icon_imageView
         private val label: TextView = itemView.label_textView
-        private val packageName: TextView = itemView.package_name
+        private val name: TextView = itemView.name
         private val checkBox: CheckBox = itemView.checkBox
 
         private var loadIconJob: Job? = null
@@ -86,7 +86,7 @@ class AppInfoListAdapter(
             }
 
             label.text = appInfo.label
-            packageName.text = appInfo.packageName
+            name.text = appInfo.activityName ?: appInfo.name
 
             // チェックボックスの状態をデータに反映させる
             checkBox.setOnCheckedChangeListener(null)

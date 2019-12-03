@@ -14,6 +14,8 @@ class DefaultSharedPreferences(
 
     var selectedPackageNames by prefStringSet(emptySet())
 
+    var selectedActivityNames by prefStringSet(emptySet())
+
     val manualMute by prefBoolean(res, R.bool.manualMute_def, R.string.manualMute)
 
     val startAutoMuteService by prefBoolean(res, R.bool.startAutoMuteService_def, R.string.startAutoMuteService)
