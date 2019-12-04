@@ -5,6 +5,7 @@ import android.content.Intent
 import android.media.AudioManager
 import android.os.Bundle
 import android.provider.Settings
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
@@ -75,8 +76,15 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
                 if (requireActivity().isUsageStatsAllowed()) {
                     startAutoMuteService()
                 } else {
-                    val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
-                    startActivityForResult(intent, ACTION_USAGE_ACCESS_SETTINGS_REQUEST_CODE)
+                    AlertDialog.Builder(requireActivity())
+                        .setMessage(getString(R.string.dialog_message_require_permission_to_usage_stats))
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .setPositiveButton(android.R.string.ok) { _, _ ->
+                            val intent = Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS)
+                            startActivityForResult(intent, RC_ACTION_USAGE_ACCESS_SETTINGS)
+                        }
+                        .show()
+
                     return@setOnPreferenceChangeListener false
                 }
             } else {

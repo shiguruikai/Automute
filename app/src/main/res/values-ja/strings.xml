@@ -30,4 +30,5 @@
     <string name="unmute_on_incoming_call">着信時にミュートを解除</string>
     <string name="unmute_on_incoming_call_summary">電話の着信時にミュートを解除します。</string>
     <string name="select_activity">アクティビティ選択</string>
+    <string name="dialog_message_require_permission_to_usage_stats">自動ミュート機能を使用するには、このアプリに使用履歴へのアクセスをする許可を与えます。</string>
 </resources>

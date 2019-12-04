@@ -30,4 +30,5 @@
     <string name="unmute_on_incoming_call">Unmute on incoming call</string>
     <string name="unmute_on_incoming_call_summary">Unmute on incoming call.</string>
     <string name="select_activity">Select Activity</string>
+    <string name="dialog_message_require_permission_to_usage_stats">Grant this app permission to access app usage status to use auto mute function.</string>
 </resources>
