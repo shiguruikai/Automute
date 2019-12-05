@@ -6,6 +6,7 @@ import android.content.Intent
 import androidx.core.content.ContextCompat
 import com.github.shiguruikai.automuteapp.defaultSharedPreferences
 import com.github.shiguruikai.automuteapp.service.AutoMasterMuteService
+import com.github.shiguruikai.automuteapp.util.isUsageStatsAllowed
 
 class BootReceiver : BroadcastReceiver() {
 
@@ -23,7 +24,9 @@ class BootReceiver : BroadcastReceiver() {
     }
 
     private fun startAutoMuteService(context: Context) {
-        ContextCompat.startForegroundService(context, Intent(context, AutoMasterMuteService::class.java))
+        if (context.isUsageStatsAllowed()) {
+            ContextCompat.startForegroundService(context, Intent(context, AutoMasterMuteService::class.java))
+        }
     }
 
     companion object {
