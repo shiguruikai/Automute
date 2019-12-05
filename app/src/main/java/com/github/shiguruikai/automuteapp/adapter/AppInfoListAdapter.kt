@@ -1,7 +1,7 @@
 package com.github.shiguruikai.automuteapp.adapter
 
 import android.content.Context
-import android.graphics.drawable.Drawable
+import android.graphics.Bitmap
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.graphics.drawable.toBitmap
 import androidx.core.util.lruCache
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -17,10 +18,11 @@ import com.github.shiguruikai.automuteapp.R
 import com.github.shiguruikai.automuteapp.data.AppInfo
 import kotlinx.android.synthetic.main.list_item_app_info.view.*
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class AppInfoListAdapter(
     context: Context,
@@ -44,15 +46,10 @@ class AppInfoListAdapter(
 
     private val packageManager = context.packageManager
 
-    private val iconCache = lruCache<String, Drawable>(
+    private val iconLoaderCache = lruCache<String, Deferred<Bitmap?>>(
         maxSize = APP_ICON_CACHE_SIZE,
-        create = {
-            try {
-                packageManager.getApplicationIcon(it)
-            } catch (e: Exception) {
-                Log.e(TAG, "Failed to load app icon from package name, was $it")
-                null
-            }
+        onEntryRemoved = { _, _, oldValue, _ ->
+            oldValue.cancel()
         }
     )
 
@@ -70,6 +67,15 @@ class AppInfoListAdapter(
         holder.loadIconJob?.cancel()
     }
 
+    private fun getApplicationIconBitmap(packageName: String): Bitmap? {
+        return try {
+            packageManager.getApplicationIcon(packageName).toBitmap()
+        } catch (e: Exception) {
+            Log.e(TAG, "Failed to load app icon from package name, was $packageName")
+            null
+        }
+    }
+
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val icon: ImageView = itemView.icon_imageView
         private val label: TextView = itemView.label_textView
@@ -79,13 +85,30 @@ class AppInfoListAdapter(
         var loadIconJob: Job? = null
 
         fun bind(appInfo: AppInfo) {
-            // アプリアイコンを非同期で読み込む
-            loadIconJob = scope.launch(Dispatchers.Main) {
-                icon.setImageDrawable(null)
-                val drawable = withContext(Dispatchers.IO) {
-                    iconCache.get(appInfo.packageName)
+            val packageName = appInfo.packageName
+
+            // アプリアイコンをクリア
+            icon.setImageDrawable(null)
+
+            // キャッシュからアイコンローダーを取得
+            var iconLoader = iconLoaderCache.get(packageName)
+
+            // アイコンローダーが無い、または、キャンセルされた場合、
+            // 新たにアイコンローダーをキャッシュする
+            if (iconLoader == null || iconLoader.isCancelled) {
+                iconLoader = scope.async(Dispatchers.IO) {
+                    getApplicationIconBitmap(packageName)
                 }
-                icon.setImageDrawable(drawable)
+                @Suppress("DeferredResultUnused") // 前回キャッシュした値は使わないため
+                iconLoaderCache.put(packageName, iconLoader)
+            }
+
+            // アプリアイコンを取得して表示させる
+            loadIconJob = scope.launch(Dispatchers.Main) {
+                val bitmap = iconLoader.await()
+                if (bitmap != null) {
+                    icon.setImageBitmap(bitmap)
+                }
             }
 
             label.text = appInfo.label
@@ -111,6 +134,6 @@ class AppInfoListAdapter(
     companion object {
         private val TAG = AppInfoListAdapter::class.java.simpleName
 
-        private const val APP_ICON_CACHE_SIZE = 256
+        private const val APP_ICON_CACHE_SIZE = 128
     }
 }
