@@ -21,7 +21,6 @@ import com.github.shiguruikai.automuteapp.util.isUsageStatsAllowed
 import com.github.shiguruikai.automuteapp.util.newIntent
 import com.github.shiguruikai.automuteapp.util.setMasterMute
 import com.github.shiguruikai.automuteapp.util.setOnPreferenceChangeListener
-import com.github.shiguruikai.automuteapp.util.singleToast
 import com.github.shiguruikai.automuteapp.util.toastMuteState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -122,10 +121,14 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
     }
 
     private fun updatePreferencesState() {
+        // ミュートの状態をボタンに反映する
         manualMute.isChecked = audioManager.isMasterMute()
 
-        AutoMasterMuteService.isRunning.also {
-            startAutoMuteService.isChecked = it
+        // サービスが起動中の場合のみチェックを付ける
+        startAutoMuteService.isChecked = AutoMasterMuteService.isRunning
+
+        // 使用履歴へのアクセス権限がない場合、設定を無効化する
+        requireActivity().isUsageStatsAllowed().let {
             startAfterReboot.isEnabled = it
             startAfterUpdate.isEnabled = it
         }

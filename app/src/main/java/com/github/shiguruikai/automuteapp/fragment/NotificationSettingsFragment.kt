@@ -10,7 +10,6 @@ import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.github.shiguruikai.automuteapp.R
 import com.github.shiguruikai.automuteapp.util.createNotificationChannel
-import com.github.shiguruikai.automuteapp.util.setOnPreferenceChangeListener
 
 class NotificationSettingsFragment : PreferenceFragmentCompat() {
 
@@ -28,13 +27,6 @@ class NotificationSettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences_notification, rootKey)
-
-        shortDurationToast.isEnabled = toastMuteChange.isChecked
-
-        toastMuteChange.setOnPreferenceChangeListener { newValue ->
-            shortDurationToast.isEnabled = newValue
-            true
-        }
 
         openNotificationSettings.setOnPreferenceClickListener {
             val intent = Intent()
