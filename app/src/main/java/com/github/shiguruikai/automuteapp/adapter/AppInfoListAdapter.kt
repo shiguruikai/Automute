@@ -66,17 +66,20 @@ class AppInfoListAdapter(
         holder.bind(appInfo)
     }
 
+    override fun onViewRecycled(holder: ViewHolder) {
+        holder.loadIconJob?.cancel()
+    }
+
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val icon: ImageView = itemView.icon_imageView
         private val label: TextView = itemView.label_textView
         private val name: TextView = itemView.name
         private val checkBox: CheckBox = itemView.checkBox
 
-        private var loadIconJob: Job? = null
+        var loadIconJob: Job? = null
 
         fun bind(appInfo: AppInfo) {
             // アプリアイコンを非同期で読み込む
-            loadIconJob?.cancel()
             loadIconJob = scope.launch(Dispatchers.Main) {
                 icon.setImageDrawable(null)
                 val drawable = withContext(Dispatchers.IO) {
