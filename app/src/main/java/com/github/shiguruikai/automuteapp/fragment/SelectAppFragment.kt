@@ -26,7 +26,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
@@ -34,20 +33,31 @@ import kotlinx.coroutines.withContext
 
 abstract class SelectAppFragment : Fragment() {
 
-    private var appInfoList: ArrayList<AppInfo> = ArrayList(0)
+    private val dataFragment by lazy {
+        val tag = "data"
+        val fm = childFragmentManager
+        fm.findFragmentByTag(tag) as DataFragment? ?: run {
+            DataFragment().also { fm.beginTransaction().add(it, tag).commit() }
+        }
+    }
+
+    private var appInfoList: ArrayList<AppInfo>
+        get() = dataFragment.appInfoList
+        set(value) {
+            dataFragment.appInfoList = value
+        }
+
+    private val appInfoListAdapter by lazy { AppInfoListAdapter(requireActivity(), lifecycleScope) }
+
     private var adapterLayoutState: Parcelable? = null
     private var adapterLayoutManager: RecyclerView.LayoutManager? = null
     private var searchView: SearchView? = null
-    private var searchViewQuery: String? = null
-
-    private val appInfoListAdapter by lazy { AppInfoListAdapter(requireActivity(), lifecycleScope) }
+    private var lastSearchQueryText: String? = null
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        getDataFragment().appInfoList = appInfoList
-
-        outState.putString(::searchViewQuery.name, searchView?.query?.toString())
+        outState.putString(::lastSearchQueryText.name, searchView?.query?.toString())
         adapterLayoutManager?.let {
             outState.putParcelable(::adapterLayoutState.name, it.onSaveInstanceState())
         }
@@ -57,10 +67,8 @@ abstract class SelectAppFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        appInfoList = getDataFragment().appInfoList
-
         if (savedInstanceState != null) {
-            searchViewQuery = savedInstanceState.getString(::searchViewQuery.name)
+            lastSearchQueryText = savedInstanceState.getString(::lastSearchQueryText.name)
             adapterLayoutState = savedInstanceState.getParcelable(::adapterLayoutState.name)
         }
     }
@@ -77,33 +85,8 @@ abstract class SelectAppFragment : Fragment() {
             // RecycleView にリストアダプターをセット
             app_info_recyclerView.adapter = appInfoListAdapter
 
-            // リストアダプターの submitList() を実行する処理
-            // 1. リストが未取得の場合、取得した後に実行
-            // 2. リストが取得済みで、検索クエリがない場合、即時実行
-            // 3. リストが取得済みで、検索クエリがある場合、検索して実行
-            if (appInfoList.isEmpty()) {
-                launch {
-                    showLoadingProgress()
-                    appInfoList = getInstalledAppInfoList()
-                    hideLoadingProgress()
-                    appInfoListAdapter.submitList(appInfoList)
-                }
-            } else {
-                val query = searchViewQuery
-                if (query.isNullOrEmpty()) {
-                    appInfoListAdapter.submitList(appInfoList)
-                } else {
-                    launch {
-                        val list = searchAppInfoList(query)
-                        appInfoListAdapter.submitList(list)
-                    }
-                }
-            }
-
-            /**
-             * RecycleView のレイアウト完了後にレイアウトマネージャをセットする。
-             * このエラーログは無視して問題ない "E/RecyclerView: No layout manager attached; skipping layout"
-             */
+            // RecycleView のレイアウト完了後にレイアウトマネージャをセットする。
+            // このエラーログは無視して問題ない "E/RecyclerView: No layout manager attached; skipping layout"
             app_info_recyclerView.afterMeasured { rv ->
                 // ビューの横幅の大きさに応じて列の数を計算
                 val dm = DisplayMetrics().also { requireActivity().windowManager.defaultDisplay.getMetrics(it) }
@@ -120,10 +103,8 @@ abstract class SelectAppFragment : Fragment() {
                 adapterLayoutManager = when {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else             -> GridLayoutManager(context, columnCount)
-                }.apply {
-                    // 状態をリストア
-                    onRestoreInstanceState(adapterLayoutState)
                 }
+
                 // レイアウトマネージャをセット
                 rv.layoutManager = adapterLayoutManager
             }
@@ -133,7 +114,6 @@ abstract class SelectAppFragment : Fragment() {
     @ExperimentalCoroutinesApi
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-
         inflater.inflate(R.menu.search_option_menu, menu)
 
         val searchMenuItem = menu.findItem(R.id.search_action_item)
@@ -142,26 +122,34 @@ abstract class SelectAppFragment : Fragment() {
             // 画面回転後も横幅が最大になるようにする
             sv.maxWidth = Int.MAX_VALUE
 
-            // 前回の検索クエリをセットする
-            if (!searchViewQuery.isNullOrEmpty()) {
+            // 前回の検索クエリがあればセットする
+            if (!lastSearchQueryText.isNullOrEmpty()) {
                 searchMenuItem.expandActionView()
-                sv.setQuery(searchViewQuery, false)
+                sv.setQuery(lastSearchQueryText, false)
                 sv.clearFocus()
             }
 
+            // アプリリストの表示と検索処理
             lifecycleScope.launch {
-                // 検索クエリに応じて、リストをサブミットする
-                // submitList() は実行済みのため、最初の検索クエリを無視する
-                sv.queryTextAsFlow()
-                    .drop(1)
-                    .collectLatest { newText ->
-                        if (newText.isEmpty()) {
-                            appInfoListAdapter.submitList(appInfoList)
-                        } else {
-                            val list = searchAppInfoList(newText)
-                            appInfoListAdapter.submitList(list)
+                // アプリリストが未取得の場合、取得する
+                if (appInfoList.isEmpty()) {
+                    showLoadingProgress()
+                    appInfoList = getInstalledAppInfoList()
+                    hideLoadingProgress()
+                }
+
+                sv.queryTextAsFlow().collectLatest { newText ->
+                    // 検索クエリに応じて、アプリリストを検索して表示する
+                    appInfoListAdapter.submitList(searchAppInfoList(newText))
+
+                    // 前回の検索クエリと現在の検索クエリが等しい場合、前回のリストの状態を復元する
+                    if (lastSearchQueryText != null && lastSearchQueryText == newText) {
+                        adapterLayoutManager?.let { layoutManager ->
+                            layoutManager.onRestoreInstanceState(adapterLayoutState)
+                            lastSearchQueryText = null
                         }
                     }
+                }
             }
         }
     }
@@ -188,11 +176,15 @@ abstract class SelectAppFragment : Fragment() {
     }
 
     private suspend fun searchAppInfoList(query: String): List<AppInfo> = withContext(Dispatchers.Default) {
-        val words = query.split(' ', '　')
+        return@withContext if (query.isBlank()) {
+            appInfoList
+        } else {
+            val words = query.split(' ', '　')
 
-        appInfoList.asFlow()
-            .filter { words.all { w -> w iin it.label || w iin it.name } }
-            .toList()
+            appInfoList.asFlow()
+                .filter { words.all { w -> w iin it.label || w iin it.name } }
+                .toList()
+        }
     }
 
     abstract fun saveSelectedAppNames(selectedAppNames: Set<String>)
@@ -206,18 +198,6 @@ abstract class SelectAppFragment : Fragment() {
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             retainInstance = true
-        }
-    }
-
-    private fun getDataFragment(): DataFragment {
-        val fm = childFragmentManager
-
-        return fm.findFragmentByTag("data") as DataFragment? ?: run {
-            DataFragment().also {
-                fm.beginTransaction()
-                    .add(it, "data")
-                    .commit()
-            }
         }
     }
 
