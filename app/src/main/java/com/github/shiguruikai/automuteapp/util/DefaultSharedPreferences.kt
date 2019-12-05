@@ -2,14 +2,14 @@ package com.github.shiguruikai.automuteapp.util
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
 import android.view.Gravity
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKeys
 import com.github.shiguruikai.automuteapp.R
 
 class DefaultSharedPreferences(
     context: Context
-) : SharedPreferences by PreferenceManager.getDefaultSharedPreferences(context.applicationContext) {
-
+) : SharedPreferences by context.getEncryptedSharedPreferences() {
     private val res = context.applicationContext.resources
 
     var selectedPackageNames by prefStringSet(emptySet())
@@ -32,3 +32,11 @@ class DefaultSharedPreferences(
 
     val unmuteOnIncomingCall by prefBoolean(res, R.bool.unmuteOnIncomingCall_def, R.string.unmuteOnIncomingCall)
 }
+
+private fun Context.getEncryptedSharedPreferences(): SharedPreferences = EncryptedSharedPreferences.create(
+    "secret_shared_prefs",
+    MasterKeys.getOrCreate(MasterKeys.AES256_GCM_SPEC),
+    applicationContext,
+    EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+    EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+)
