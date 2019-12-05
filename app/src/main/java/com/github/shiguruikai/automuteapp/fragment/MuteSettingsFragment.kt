@@ -157,8 +157,6 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
         if (requestCode == RC_UNMUTE_ON_INCOMING_CALL) {
             if (isPhonePermissionGranted()) {
                 unmuteOnIncomingCall.isChecked = true
-            } else {
-                requireActivity().singleToast("Permissions not granted.")
             }
         }
     }
