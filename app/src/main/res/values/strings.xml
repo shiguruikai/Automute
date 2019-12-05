@@ -1,14 +1,10 @@
 <resources>
     <string name="mute">Mute</string>
     <string name="unmute">Unmute</string>
-    <string name="usage_access_allowed">Usage access is allowed.</string>
-    <string name="usage_access_not_allowed">Usage access is not allowed.</string>
-    <string name="require_permit_usage_access">Require permit usage access.</string>
     <string name="progress_loading_text">loading…</string>
     <string name="search">Search</string>
     <string name="app_name" translatable="false">Automute</string>
     <string name="select_app">Select App</string>
-    <string name="settings">Settings</string>
     <string name="notification">Notification</string>
     <string name="manual_mute_category_title">Manual Mute</string>
     <string name="auto_mute_category_title">Auto Mute</string>
