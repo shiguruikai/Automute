@@ -3,11 +3,8 @@ package com.github.shiguruikai.automuteapp.fragment
 import android.Manifest
 import android.content.Intent
 import android.media.AudioManager
-import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
-import android.view.Menu
-import android.view.MenuInflater
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
@@ -57,25 +54,6 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
      */
     private val unmuteOnIncomingCall by lazy {
         findPreference<CheckBoxPreference>(getString(R.string.unmuteOnIncomingCall))!!
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.home_menu, menu)
-
-        val privacyPolicy = menu.findItem(R.id.privacy_policy_menu_item)
-
-        privacyPolicy.setOnMenuItemClickListener {
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))
-            startActivity(intent)
-
-            false
-        }
     }
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
@@ -192,7 +170,5 @@ class MuteSettingsFragment : PreferenceFragmentCompat() {
         private const val RC_UNMUTE_ON_INCOMING_CALL = 2
 
         private const val CHECK_STATE_INTERVAL = 200L
-
-        private const val PRIVACY_POLICY_URL = "https://sites.google.com/view/automute/privacy-policy"
     }
 }

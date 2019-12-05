@@ -1,6 +1,9 @@
 package com.github.shiguruikai.automuteapp
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -34,6 +37,21 @@ class MainActivity : AppCompatActivity() {
         bottomNavigationView.setOnNavigationItemReselectedListener { }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.home_menu, menu)
+
+        val privacyPolicyMenuItem = menu.findItem(R.id.privacy_policy_menu_item)
+
+        privacyPolicyMenuItem.setOnMenuItemClickListener {
+            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(PRIVACY_POLICY_URL))
+            startActivity(intent)
+
+            true
+        }
+
+        return true
+    }
+
     /**
      * [https://developer.android.com/guide/navigation/navigation-ui#action_bar]
      */
@@ -54,5 +72,7 @@ class MainActivity : AppCompatActivity() {
             R.id.nav_select_app,
             R.id.nav_select_activity
         )
+
+        private const val PRIVACY_POLICY_URL = "https://sites.google.com/view/automute/privacy-policy"
     }
 }
