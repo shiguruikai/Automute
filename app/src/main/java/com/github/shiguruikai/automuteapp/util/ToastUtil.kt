@@ -34,6 +34,8 @@ fun Context.singleToast(text: CharSequence) {
 }
 
 fun Context.toastMuteState(audioManager: AudioManager) {
+    if (!defaultSharedPreferences.toastMuteChange) return
+
     val gravity = defaultSharedPreferences.toastGravity.toInt()
     val duration = if (defaultSharedPreferences.shortDurationToast) SHORT_DURATION else NORMAL_DURATION
     val toastView = View.inflate(applicationContext, R.layout.toast_mute_state, null)
