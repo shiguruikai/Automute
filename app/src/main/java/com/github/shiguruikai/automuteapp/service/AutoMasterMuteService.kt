@@ -126,18 +126,20 @@ class AutoMasterMuteService :
 
             if (usageEvents.hasNextEvent()) {
                 val event = UsageEvents.Event()
-                var lastForegroundEvent: UsageEvents.Event? = null
+                var lastResumedPackageName: String? = null
+                var lastResumedClassName: String? = null
 
                 while (usageEvents.getNextEvent(event)) {
-                    if (event.eventType == UsageEvents.Event.MOVE_TO_FOREGROUND) {
-                        lastForegroundEvent = event
+                    if (event.eventType == UsageEvents.Event.ACTIVITY_RESUMED) {
+                        lastResumedPackageName = event.packageName
+                        lastResumedClassName = event.className
                     }
                 }
 
-                if (lastForegroundEvent != null) {
+                if (lastResumedPackageName != null && lastResumedClassName != null) {
                     val isMuted = audioManager.isMasterMute()
-                    val shouldMute = (lastForegroundEvent.packageName in selectedPackageNames
-                            || lastForegroundEvent.className in selectedActivityNames)
+                    val shouldMute = (lastResumedPackageName in selectedPackageNames
+                            || lastResumedClassName in selectedActivityNames)
 
                     if (isMuted xor shouldMute) {
                         audioManager.setMasterMute(shouldMute)
