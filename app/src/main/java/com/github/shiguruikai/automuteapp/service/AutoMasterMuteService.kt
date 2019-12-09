@@ -163,7 +163,7 @@ class AutoMasterMuteService :
         private const val USAGE_MONITORING_INTERVAL = 600L
 
         /** [UsageStatsManager.queryEvents] で照会する時間(ミリ秒)の範囲 */
-        private const val QUERY_EVENTS_TIME_RANGE = USAGE_MONITORING_INTERVAL + 1000L
+        private const val QUERY_EVENTS_TIME_RANGE = 1000L
 
         /** [AutoMasterMuteService] が起動しているかどうか。 */
         var isRunning = false; private set
