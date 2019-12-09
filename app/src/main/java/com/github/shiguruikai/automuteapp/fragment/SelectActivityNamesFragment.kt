@@ -2,7 +2,7 @@ package com.github.shiguruikai.automuteapp.fragment
 
 import android.content.pm.PackageManager
 import com.github.shiguruikai.automuteapp.data.AppInfo
-import com.github.shiguruikai.automuteapp.defaultSharedPreferences
+import com.github.shiguruikai.automuteapp.secretSharedPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.async
@@ -17,12 +17,14 @@ import kotlinx.coroutines.withContext
 class SelectActivityNamesFragment : SelectAppFragment() {
 
     override fun saveSelectedAppNames(selectedAppNames: Set<String>) {
-        defaultSharedPreferences.selectedActivityNames = selectedAppNames
+        secretSharedPreferences.selectedActivityNames = selectedAppNames
     }
 
     @FlowPreview
     override suspend fun getInstalledAppInfoList(): ArrayList<AppInfo> = withContext(Dispatchers.Default) {
         val pm = requireContext().packageManager
+
+        val selectedActivityNames = secretSharedPreferences.selectedActivityNames
 
         val comparator = compareByDescending(AppInfo::isChecked)
             .thenComparator { a, b -> a.packageName.compareTo(b.packageName, true) }
@@ -50,7 +52,7 @@ class SelectActivityNamesFragment : SelectAppFragment() {
                             activityName = it.name.substringAfterLast('.'),
                             name = it.name
                         ).apply {
-                            isChecked = name in defaultSharedPreferences.selectedActivityNames
+                            isChecked = name in selectedActivityNames
                         }
                     } else {
                         null

@@ -15,6 +15,7 @@ import com.github.shiguruikai.automuteapp.MainActivity
 import com.github.shiguruikai.automuteapp.R
 import com.github.shiguruikai.automuteapp.defaultSharedPreferences
 import com.github.shiguruikai.automuteapp.receiver.ScreenStateReceiver
+import com.github.shiguruikai.automuteapp.secretSharedPreferences
 import com.github.shiguruikai.automuteapp.util.NOTIFICATION_CHANNEL_ID
 import com.github.shiguruikai.automuteapp.util.createNotificationChannel
 import com.github.shiguruikai.automuteapp.util.isMasterMute
@@ -50,10 +51,10 @@ class AutoMasterMuteService :
         super.onCreate()
 
         registerReceiver(screenStateReceiver, ScreenStateReceiver.intentFilter)
-        defaultSharedPreferences.registerOnSharedPreferenceChangeListener(this)
+        secretSharedPreferences.registerOnSharedPreferenceChangeListener(this)
 
-        selectedPackageNames = defaultSharedPreferences.selectedPackageNames
-        selectedActivityNames = defaultSharedPreferences.selectedActivityNames
+        selectedPackageNames = secretSharedPreferences.selectedPackageNames
+        selectedActivityNames = secretSharedPreferences.selectedActivityNames
 
         startNotification()
 
@@ -73,7 +74,7 @@ class AutoMasterMuteService :
         super.onDestroy()
 
         unregisterReceiver(screenStateReceiver)
-        defaultSharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
+        secretSharedPreferences.unregisterOnSharedPreferenceChangeListener(this)
 
         // サービスが終了したら、マスターミュートを解除する
         audioManager.setMasterMute(false)
@@ -83,11 +84,11 @@ class AutoMasterMuteService :
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
         when (key) {
-            defaultSharedPreferences::selectedPackageNames.name  -> {
-                selectedPackageNames = defaultSharedPreferences.selectedPackageNames
+            secretSharedPreferences::selectedPackageNames.name  -> {
+                selectedPackageNames = secretSharedPreferences.selectedPackageNames
             }
-            defaultSharedPreferences::selectedActivityNames.name -> {
-                selectedActivityNames = defaultSharedPreferences.selectedActivityNames
+            secretSharedPreferences::selectedActivityNames.name -> {
+                selectedActivityNames = secretSharedPreferences.selectedActivityNames
             }
         }
     }

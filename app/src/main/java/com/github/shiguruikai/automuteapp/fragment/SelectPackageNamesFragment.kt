@@ -2,7 +2,7 @@ package com.github.shiguruikai.automuteapp.fragment
 
 import android.content.pm.PackageManager
 import com.github.shiguruikai.automuteapp.data.AppInfo
-import com.github.shiguruikai.automuteapp.defaultSharedPreferences
+import com.github.shiguruikai.automuteapp.secretSharedPreferences
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -14,11 +14,13 @@ import kotlinx.coroutines.withContext
 class SelectPackageNamesFragment : SelectAppFragment() {
 
     override fun saveSelectedAppNames(selectedAppNames: Set<String>) {
-        defaultSharedPreferences.selectedPackageNames = selectedAppNames
+        secretSharedPreferences.selectedPackageNames = selectedAppNames
     }
 
     override suspend fun getInstalledAppInfoList(): ArrayList<AppInfo> = withContext(Dispatchers.Default) {
         val pm = requireContext().packageManager
+
+        val selectedPackageNames = secretSharedPreferences.selectedPackageNames
 
         // ソートの優先順は、
         // チェック済み > ラベルの昇順 > パッケージ名の昇順
@@ -46,7 +48,7 @@ class SelectPackageNamesFragment : SelectAppFragment() {
                             name = it.packageName
                         ).apply {
                             // ユーザーが選択済みのアプリかどうか
-                            isChecked = name in defaultSharedPreferences.selectedPackageNames
+                            isChecked = name in selectedPackageNames
                         }
                     } else {
                         null
