@@ -47,7 +47,7 @@ fun SharedPreferences.prefBoolean(
 fun SharedPreferences.prefString(defaultValue: String, key: String? = null): PreferencesDelegate<String> =
     PreferencesDelegate(
         key,
-        { k -> getString(k, defaultValue) },
+        { k -> getString(k, null) ?: defaultValue },
         { k, v -> putString(k, v) })
 
 fun SharedPreferences.prefString(
@@ -57,5 +57,5 @@ fun SharedPreferences.prefString(
 fun SharedPreferences.prefStringSet(defaultValue: Set<String>, key: String? = null): PreferencesDelegate<Set<String>> =
     PreferencesDelegate(
         key,
-        { k -> getStringSet(k, defaultValue) },
+        { k -> getStringSet(k, null) ?: defaultValue },
         { k, v -> putStringSet(k, v) })
